@@ -1,0 +1,233 @@
+#include <bits/stdc++.h>
+//#include<conio.h>
+using namespace std;
+
+struct trie
+{
+	string phoneNum;
+	bool check;
+	trie *Name[26];
+	trie()
+	{
+		for(int i=0;i<26;i++)
+		{
+			Name[i]=NULL;
+		}
+		check=true;
+		phoneNum="";
+	}
+};
+
+bool checkDuplicate(trie *root,string name)
+{
+	int i,ind;
+	for(i=0;i<name.length();i++)
+	{
+		  if(name[i]>=97&&name[i]<=122)
+		  {
+		  	ind=name[i]-'a';
+		  }
+		  else
+		  ind=name[i]-'A';
+		  if(root->Name[ind]==NULL)
+		  {
+		  	return false;
+		  }
+		  root=root->Name[ind];
+	}
+	if(i==name.length())
+	   return true;
+}
+void insert(trie *root, string s,string num)
+{
+	int i;
+	int ind;
+	if(!checkDuplicate(root,s))
+	{
+	  for(i=0;i<s.length();i++)
+	   {
+		
+	
+		if(s[i]>=65&&s[i]<=90)
+		ind=s[i]-'A';
+		else
+		ind=s[i]-'a';
+		
+		if(root->Name[ind]==NULL)
+		{
+			trie *temp=new trie();
+			root->Name[ind]=temp;
+			 root->check=false;
+			 //root=temp;
+			
+		}
+			root=root->Name[ind];
+	}
+	root->check=true;
+	for(i=0;i<num.length();i++)
+	root->phoneNum+=num[i];
+   }
+   else
+   {
+   	cout<<"Sorry that number is already exist please enter again\n";
+   }
+
+}
+bool isEmpty(trie *root)
+{
+	for(int i=0;i<26;i++)
+	{
+		if(root->Name[i])
+		return false;
+	}
+	return true;
+}
+trie *del(trie *root,int dep,string s)
+{
+	if(!root)
+	{
+	   cout<<"sorry for this key no Name exist in Phone Book"<<endl;
+	   return NULL;
+   }
+	if(dep==s.length())
+	{
+		if(root->check)
+		{
+			root->check=false;
+			root->phoneNum.clear();
+		}
+		if(isEmpty(root)&&root->check==false)
+		{
+			delete root;
+			root=NULL;
+		}
+		return root;
+	}
+	int ind=s[dep]-'a';;
+	root->Name[ind]=del(root->Name[ind],dep+1,s);
+	if(isEmpty(root)&&root->check==false)
+	{
+		delete root;
+		root=NULL;
+	}
+	return root;
+}
+
+int prefix(trie *root,string key)
+{
+	if(root->check)
+	{
+	
+	   cout<<key<<"    "<<root->phoneNum<<endl;
+   }
+	   
+	for(int i=0;i<26;i++)
+	{
+		if(root->Name[i])
+		{
+			key+=char(i+97);
+			prefix(root->Name[i],key);
+			
+			key.erase(key.length()-1);
+		}
+	}
+	return 0;
+}
+int search(trie *root)
+{
+	string s="";
+	int i,ind;
+	char ch;
+	cin>>ch;
+	while(ch>=65&&ch<=90||ch>=97&&ch<=122)
+	{
+	    if(ch>=97&&ch<=122)    
+	      ind=ch-'a';
+	      else
+	      ind=ch-'A';
+		s+=ch;
+		if(!root->Name[ind])
+		{
+			cout<<"sorry for this key no Name exist in Phone Book"<<endl;
+			return 0;
+		}
+		else
+		{
+			cout<<s<<endl;
+			prefix(root->Name[ind],s);
+			root=root->Name[ind];
+			cout<<endl;
+		}
+	
+		cin>>ch;
+		//cout<<flush;
+	}
+	return 0;
+}
+
+
+/*Update the Phone Number and Name */
+int update(trie *root)
+{
+    	string DelNam,no;
+		  		string newName;
+		      cout<<"find the name\n";
+		  		 cin>>DelNam;
+		  			prefix(root,DelNam);
+          		root=del(root,0,DelNam);
+		  			cout<<"\n Now update new name and number\n";
+		  			cin>>newName>>no;
+		  			insert(root,newName,no);
+		  	
+}
+//Main start from here
+int main(int argc, char** argv) 
+{
+	trie *root=new trie();
+	
+	
+	while(1)
+	{
+	  int ch;                /*choose the the option to perform the any one task*/
+	  cout<<"1:-Insert\t 2:-search\t 3:-Delete\t 4:-Update\n";
+	  cin>>ch;
+	  switch(ch)
+	  {
+	  	case 1:
+	  		{
+			  cout<<"Enter the contact Name and Number\n";;
+	  		string name,num;
+	  		cin>>name>>num;
+	  		insert(root,name,num);
+	  		break;
+	  	   }
+	  	
+		case 2:
+		  	  {
+			 cout<<"Enter one character at a time\n";
+		  	   search(root);
+		  	   break;
+		      }
+		  	
+		  case 3:
+		  	{
+			  cout<<"Delete the contact detail by entering the name";
+		  	string Name;
+		  	cin>>Name;
+		  	root=del(root,0,Name);
+		  	break;
+		  }
+		  	case 4:
+		  		{
+				  cout<<"update the Name\n";;
+		  		  update(root);
+		  	    }
+		  		break;
+		  	default:
+			  cout<<"\n Please choose the correct option\n";		
+	  }
+	  if(ch==0)
+	  break;
+}
+	return 0;
+}
